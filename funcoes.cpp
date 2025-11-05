@@ -1,5 +1,4 @@
 #include <iostream>
-#include "funcoes.h" 
 
 using namespace std;
 
@@ -10,4 +9,10 @@ void menu()
        << "A -> Atendimento"                 << endl
        << "D -> Exibe Informações das filas" << endl
        << "Q -> Encerrar a simulação\n"      << endl;
+}
+
+void atendimento(fila &v, fila &a, fila &d, fila &b)
+{
+  if (v)
+  
 }
