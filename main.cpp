@@ -2,108 +2,114 @@
 #include <queue>
 #include <string>
 #include <iomanip>
-using namespace std;
 
 struct Paciente
 {
-  string nome;
-  char prioridade;
-  int hora;
-  int minuto;
+  std::string nome;
+  char        prioridade;
+  int         hora, minuto;
 };
 
 void menu()
 {
-  cout << "\n===== MENU DE COMANDOS ====="    << endl
-       << "C -> Chegada de paciente"          << endl
-       << "A -> Atendimento"                  << endl
-       << "D -> Exibir informações das filas" << endl
-       << "Q -> Encerrar a simulação"         << endl
-       << "=============================="    << endl;
+  std::cout << "\n===== MENU DE COMANDOS ====="    << std::endl
+            << "C -> Chegada de paciente"          << std::endl
+            << "A -> Atendimento"                  << std::endl
+            << "D -> Exibir informações das filas" << std::endl
+            << "Q -> Encerrar a simulação"         << std::endl
+            << "=============================="    << std::endl;
 }
 
-int calcularMinutosTotais(int h, int m)
+int calcularMinutos(int nrHora, int nrMinuto)
 {
-  return h * 60 + m;
+  return (nrHora * 60) + nrMinuto;
 }
 
-void chegadaPaciente(queue<Paciente> &fila, const string &nome, char prior, int hh, int mm)
+void contarChegadaPessoa(std::queue<Paciente> &fila, const std::string &nome, char dsPrioridade, int nrHora, int nrMinuto)
 {
-  Paciente p = {nome, prior, hh, mm};
+  Paciente p = {nome, dsPrioridade, nrHora, nrMinuto};
   fila.push(p);
 }
 
-void atendimento(queue<Paciente> &fila, int hh, int mm, int &atendidos, int &total, int &tempoMaximo)
+void atenderProximo(std::queue<Paciente> &fila, int nrHora, int nrMinuto, int &atendidos, int &total, int &tempoMaximo)
 {
-  if (fila.empty()) return;
+  if (fila.empty())
+    return;
 
-  int nrTempo  = calcularMinutosTotais(hh, mm);
-  Paciente p = fila.front();
+  int nrTempo  = calcularMinutos(nrHora, nrMinuto);
+  Paciente p   = fila.front();
   fila.pop();
 
   atendidos++;
   total++;
 
-  int espera = nrTempo - calcularMinutosTotais(p.hora, p.minuto);
+  int espera = nrTempo - calcularMinutos(p.hora, p.minuto);
 
   if (espera > tempoMaximo)
     tempoMaximo = espera;
 
-  cout << setw(2)         << setfill('0') << hh << ":"
-       << setw(2)         << setfill('0') << mm
-       << " Paciente "    << p.nome
-       << " (Prioridade " << p.prioridade << ") atendido."
-       << endl;
+  std::cout << std::setw(2)    << std::setfill('0') << nrHora << ":"
+            << std::setw(2)    << std::setfill('0') << nrMinuto
+            << " Paciente "    << p.nome
+            << " (Prioridade " << p.prioridade      << ") atendido."
+            << std::endl;
 }
 
-void exibirFilas(queue<Paciente> filaV, queue<Paciente> filaA, queue<Paciente> filaD, queue<Paciente> filaB, int nrTotal) {
-  cout << "V:" << filaV.size()    << " "
-       << "A:" << filaA.size()    << " "
-       << "D:" << filaD.size()    << " "
-       << "B:" << filaB.size()    << " | "
-       << "Atendidos:" << nrTotal << endl;
+void exibirFilas(std::queue<Paciente> filaV, std::queue<Paciente> filaA, std::queue<Paciente> filaD, std::queue<Paciente> filaB, int nrTotal)
+{
+  std::cout << "V:" << filaV.size()    << " "
+            << "A:" << filaA.size()    << " "
+            << "D:" << filaD.size()    << " "
+            << "B:" << filaB.size()    << " | "
+            << "Atendidos:" << nrTotal << std::endl;
 }
 
-void resumoFinal(int total, int qtFilaV, int qtFilaA, int qtFilaD, int qtFilaB, int pico, int nrTempoMaximo) {
-  cout << "Total atendidos: "       << total         << endl
-       << "V: " << qtFilaV
-       << " A: " << qtFilaA
-       << " D: " << qtFilaD
-       << " B: " << qtFilaB       << endl
-       << "Pico de lotacao: "       << pico          << endl
-       << "Maior tempo de espera: " << nrTempoMaximo << endl;
+void resumoFinal(int total, int qtFilaV, int qtFilaA, int qtFilaD, int qtFilaB, int pico, int nrTempoMaximo)
+{
+  std::cout << "Total atendidos: "       << total         << std::endl
+            << "V: "                     << qtFilaV
+            << " A: "                    << qtFilaA
+            << " D: "                    << qtFilaD
+            << " B: "                    << qtFilaB       << std::endl
+            << "Pico de lotacao: "       << pico          << std::endl
+            << "Maior tempo de espera: " << nrTempoMaximo << std::endl;
 }
 
 int main()
 {
-  int qtAtendidosV      = 0,
-      qtAtendidosA      = 0,
-      qtAtendidosD      = 0,
-      qtAtendidosB      = 0,
-      totalAtendidos    = 0,
-      picoLotacao       = 0,
-      tempoMaximoEspera = 0;
-  string comando;
-  queue<Paciente> filaV, filaA, filaD, filaB;
+  int qtAtendidosV = 0,
+      qtAtendidosA = 0,
+      qtAtendidosD = 0,
+      qtAtendidosB = 0,
+      qtAtendidos  = 0,
+      picoLotacao  = 0,
+      nrMaxTempo   = 0;
 
-  while (cin >> comando)
+  std::string comando;
+  std::queue<Paciente> filaV, filaA, filaD, filaB;
+
+  menu();
+
+  while (std::cin >> comando)
   {
+    int nrHora = 0, nrMinuto = 0;
+
     if (comando == "C")
     {
-      string nome;
-      char   prior;
-      int    hh, mm;
+      std::string nome;
+      char        dsPrioridade;
+      int         nrHora, nrMinuto;
 
-      cin >> nome >> prior >> hh >> mm; prior = toupper(prior);
+      std::cin >> nome >> dsPrioridade >> nrHora >> nrMinuto; dsPrioridade = toupper(dsPrioridade);
 
-      if (prior == 'V')
-        chegadaPaciente(filaV, nome, prior, hh, mm);
-      else if (prior == 'A')
-        chegadaPaciente(filaA, nome, prior, hh, mm);
-      else if (prior == 'D')
-        chegadaPaciente(filaD, nome, prior, hh, mm);
-      else if (prior == 'B')
-        chegadaPaciente(filaB, nome, prior, hh, mm);
+      if (dsPrioridade == 'V')
+        contarChegadaPessoa(filaV, nome, dsPrioridade, nrHora, nrMinuto);
+      else if (dsPrioridade == 'A')
+        contarChegadaPessoa(filaA, nome, dsPrioridade, nrHora, nrMinuto);
+      else if (dsPrioridade == 'D')
+        contarChegadaPessoa(filaD, nome, dsPrioridade, nrHora, nrMinuto);
+      else if (dsPrioridade == 'B')
+        contarChegadaPessoa(filaB, nome, dsPrioridade, nrHora, nrMinuto);
 
       int qtTamanhoFila = filaV.size() + filaA.size() + filaD.size() + filaB.size();
 
@@ -113,30 +119,30 @@ int main()
 
     else if (comando == "A")
     {
-      int hh, mm; cin >> hh >> mm;
+      std::cin >> nrHora >> nrMinuto;
     
       if (!filaV.empty())
-        atendimento(filaV, hh, mm, qtAtendidosV, totalAtendidos, tempoMaximoEspera);
+        atenderProximo(filaV, nrHora, nrMinuto, qtAtendidosV, qtAtendidos, nrMaxTempo);
       else if (!filaA.empty())
-        atendimento(filaA, hh, mm, qtAtendidosA, totalAtendidos, tempoMaximoEspera);
+        atenderProximo(filaA, nrHora, nrMinuto, qtAtendidosA, qtAtendidos, nrMaxTempo);
       else if (!filaD.empty())
-        atendimento(filaD, hh, mm, qtAtendidosD, totalAtendidos, tempoMaximoEspera);
+        atenderProximo(filaD, nrHora, nrMinuto, qtAtendidosD, qtAtendidos, nrMaxTempo);
       else if (!filaB.empty())
-        atendimento(filaB, hh, mm, qtAtendidosB, totalAtendidos, tempoMaximoEspera);
+        atenderProximo(filaB, nrHora, nrMinuto, qtAtendidosB, qtAtendidos, nrMaxTempo);
       else
-        cout << setw(2)                                  << setfill('0') << hh << ":"
-             << setw(2)                                  << setfill('0') << mm
-             << " Sem pacientes aguardando atendimento." << endl;
+        std::cout << std::setw(2)                             << std::setfill('0') << nrHora << ":"
+                  << std::setw(2)                             << std::setfill('0') << nrMinuto
+                  << " Sem pacientes aguardando atendimento." << std::endl;
     }
 
 
     else if (comando == "D")
-      exibirFilas(filaV, filaA, filaD, filaB, totalAtendidos);
+      exibirFilas(filaV, filaA, filaD, filaB, qtAtendidos);
 
     else if (comando == "Q")
     {
-      resumoFinal(totalAtendidos, qtAtendidosV, qtAtendidosA, qtAtendidosD, 
-                  qtAtendidosB, picoLotacao, tempoMaximoEspera);
+      resumoFinal(qtAtendidos, qtAtendidosV, qtAtendidosA, qtAtendidosD, 
+                  qtAtendidosB, picoLotacao, nrMaxTempo);
       break;
     }
   }
